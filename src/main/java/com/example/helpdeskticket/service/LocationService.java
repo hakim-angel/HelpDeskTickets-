@@ -133,9 +133,15 @@ public class LocationService {
         }
         
         // Level should be consistent with parent's level
-        if (location.getParent() != null && 
-            location.getLevel() != location.getParent().getLevel() + 1) {
-            return false;
+        if (location.getParent() != null && location.getParent().getId() != null) {
+            // Get the actual parent level from database
+            Integer parentLevel = locationRepository.findById(location.getParent().getId())
+                    .map(Location::getLevel)
+                    .orElseThrow(() -> new IllegalArgumentException("Parent location not found with id: " + location.getParent().getId()));
+            
+            if (location.getLevel() != parentLevel + 1) {
+                return false;
+            }
         }
         
         return true;
